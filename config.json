@@ -8,6 +8,7 @@
         "url": [
             "https://youtube.com/watch?v=VIDEO_ID_1",
             "https://youtube.com/watch?v=VIDEO_ID_2"
-        ]
+        ],
+        "quality": "720p"
     }
 ]
