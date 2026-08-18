@@ -14,6 +14,7 @@ YouTube Video → Download → Extract Frames → Organized Dataset
 - **Smart filtering** — skips dark, blurry, and duplicate frames automatically
 - **Batch processing** — process multiple videos via JSON config or labels file
 - **High quality frames** — JPEG quality 100, or lossless PNG with `--format png`
+- **Higher quality downloads** — use `--cookies cookies.txt` for 720p+ streams (auto-falls back to 360p if cookies are invalid)
 
 ## Installation
 
@@ -61,6 +62,19 @@ The tool searches YouTube for each label (e.g., "valorant Reaver skin gameplay")
 python extract.py --config categories.json
 ```
 
+### Higher quality downloads (720p+)
+By default, YouTube limits downloads to 360p. For higher quality, export your browser cookies:
+
+1. Install the **"Get cookies.txt LOCALLY"** browser extension
+2. Go to YouTube (logged in) and click the extension to export cookies
+3. Save the file as `cookies.txt` in the project folder
+4. Run with cookies:
+```bash
+python extract.py --config categories.json --cookies cookies.txt
+```
+
+> **Note:** YouTube periodically rotates/invalidates cookies as a security measure. If you see `"cookies are no longer valid"` or 403 errors, re-export fresh cookies from your browser. You don't need to keep YouTube open after exporting — cookies remain valid until YouTube rotates them (usually weeks/months). The script falls back to 360p automatically if cookies are invalid.
+
 ---
 
 ## Config File Format
@@ -103,6 +117,7 @@ Each entry can have a single URL string or an array of URLs for the same label.
 | `--sharpness` | `50` | Min sharpness to keep frame (higher = sharper) |
 | `--dedup` | `0.95` | Duplicate similarity threshold, 0-1 (lower = stricter) |
 | `--format` | `jpg` | Frame format: `jpg` (quality 100) or `png` (lossless) |
+| `--cookies` | — | Path to cookies.txt for higher quality downloads |
 | `--dry-run` | — | Search only, don't download |
 
 ## Filtering
@@ -138,6 +153,15 @@ output/
 - **Data augmentation** — Extract training data from gameplay/showcase videos
 - **Research** — Collect visual data for computer vision projects
 - **Content analysis** — Sample frames from videos for analysis
+
+## Troubleshooting
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| `"cookies are no longer valid"` or 403 errors | YouTube rotated your cookies | Re-export fresh cookies from browser |
+| Only 360p quality despite cookies | Cookies expired or invalid | Re-export cookies while logged into YouTube |
+| `"Please sign in"` error | Video requires authentication | Export cookies from a logged-in YouTube session |
+| Download hangs/slow | YouTube throttling | Try again later or use different videos |
 
 ## License
 

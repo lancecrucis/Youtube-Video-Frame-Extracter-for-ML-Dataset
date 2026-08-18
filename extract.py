@@ -22,6 +22,9 @@ Usage:
 
     # Batch from text file (one label per line)
     python extract.py --labels labels.txt
+
+    # Higher quality with cookies
+    python extract.py --config categories.json --cookies cookies.txt
 """
 
 import argparse
@@ -46,7 +49,6 @@ def search_youtube(query: str, max_results: int = 5) -> list[dict]:
         "--flat-playlist",
         "-j",
         "--js-runtimes", "node",
-        "--extractor-args", "youtube:player_client=mweb",
     ]
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -85,12 +87,13 @@ def pick_best_video(videos: list[dict]) -> dict | None:
     return scored[0][1]
 
 
-def download_video(url: str, output_dir: str, name: str) -> str | None:
+def download_video(url: str, output_dir: str, name: str,
+                   cookies: str | None = None) -> str | None:
     """Download a YouTube video using yt-dlp."""
     output_path = os.path.join(output_dir, f"{name}.mp4")
     cmd = [
         sys.executable, "-m", "yt_dlp",
-        "-f", "b",
+        "-f", "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]",
         "--merge-output-format", "mp4",
         "--js-runtimes", "node",
         "--extractor-args", "youtube:player_client=mweb",
@@ -99,6 +102,8 @@ def download_video(url: str, output_dir: str, name: str) -> str | None:
         "--socket-timeout", "30",
         "--retries", "3",
     ]
+    if cookies:
+        cmd.extend(["--cookies", cookies])
 
     cmd.append(url)
 
@@ -111,6 +116,15 @@ def download_video(url: str, output_dir: str, name: str) -> str | None:
             if f.startswith(name) and f.endswith(".mp4"):
                 return os.path.join(output_dir, f)
         if result.returncode != 0:
+            if cookies and ("403" in result.stderr or "cookies" in result.stderr.lower()):
+                print(f"  Cookies invalid, retrying without cookies...")
+                cmd_no_cookies = [c for c in cmd if c != cookies and c != "--cookies"]
+                result = subprocess.run(cmd_no_cookies, capture_output=True, text=True, timeout=600)
+                if os.path.exists(output_path):
+                    return output_path
+                for f in os.listdir(output_dir):
+                    if f.startswith(name) and f.endswith(".mp4"):
+                        return os.path.join(output_dir, f)
             print(f"  ERROR: {result.stderr[:200]}")
             return None
         return None
@@ -211,7 +225,8 @@ def extract_frames(
 def process_urls(entries: list[dict], output_dir: str, interval: float,
                  max_frames: int, skip_start: float, skip_end: float,
                  brightness_thresh: float, sharpness_thresh: float,
-                 dedup_thresh: float, fmt: str = "jpg"):
+                 dedup_thresh: float, fmt: str = "jpg",
+                 cookies: str | None = None):
     """Process a list of {label, url/list} entries."""
     temp_dir = os.path.join(output_dir, "_temp")
     os.makedirs(temp_dir, exist_ok=True)
@@ -239,7 +254,7 @@ def process_urls(entries: list[dict], output_dir: str, interval: float,
             safe = label.replace(" ", "_").replace("/", "_")
             vid = u.split("v=")[-1].split("&")[0] if "v=" in u else u.split("/")[-1]
             name = f"{safe}_{vid[:8]}"
-            video_path = download_video(u, temp_dir, name)
+            video_path = download_video(u, temp_dir, name, cookies=cookies)
 
             if not video_path:
                 continue
@@ -282,6 +297,7 @@ Examples:
   python extract.py --url "https://youtube.com/watch?v=xxx" --label "dogs"
   python extract.py --config categories.json
   python extract.py --labels labels.txt
+  python extract.py --config categories.json --cookies cookies.txt
         """,
     )
 
@@ -316,6 +332,8 @@ Examples:
     # Output
     parser.add_argument("--output", type=str, default="./output",
                         help="Output directory (default: ./output)")
+    parser.add_argument("--cookies", type=str, default=None,
+                        help="Path to cookies.txt file for higher quality downloads")
     parser.add_argument("--dry-run", action="store_true",
                         help="Search only, don't download")
 
@@ -383,7 +401,7 @@ Examples:
         temp_dir = os.path.join(args.output, "_temp")
         os.makedirs(temp_dir, exist_ok=True)
         safe = label.replace(" ", "_")
-        video_path = download_video(args.url, temp_dir, safe)
+        video_path = download_video(args.url, temp_dir, safe, cookies=args.cookies)
         if video_path:
             extract_frames(
                 video_path, args.output, label,
@@ -443,7 +461,7 @@ Examples:
             print(f"  Selected: {best['title'][:50]}")
 
             safe = label.replace(" ", "_").replace("'", "").replace(":", "")
-            video_path = download_video(best["url"], temp_dir, safe)
+            video_path = download_video(best["url"], temp_dir, safe, cookies=args.cookies)
 
             if not video_path:
                 continue
@@ -496,6 +514,7 @@ Examples:
             sharpness_thresh=args.sharpness,
             dedup_thresh=args.dedup,
             fmt=args.format,
+            cookies=args.cookies,
         )
         print(f"\n{'=' * 50}")
         print(f"  DONE! Total frames: {total}")
