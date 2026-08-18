@@ -23,6 +23,7 @@ env/
 # Output
 output/
 _temp/
+cookies.txt
 
 # OS
 .DS_Store
