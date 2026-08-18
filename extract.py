@@ -8,8 +8,14 @@ Features:
   - Extract frames at configurable intervals
   - Filter out dark/blurry/duplicate frames automatically
   - Organize output by category/label name
-  - Choose download quality (360p / 720p / 1080p)
   - Supports single URLs or batch processing via JSON config or labels file
+
+Note on quality:
+  YouTube requires PO Tokens for 720p+ streams. Without browser
+  authentication, the tool downloads at 360p (mweb client). This is
+  sufficient for frame extraction — the extracted frames are still
+  640x360 and recognizable. For higher quality, provide browser cookies:
+      --cookies-from-browser chrome
 
 Usage:
     # Search YouTube and extract
@@ -17,9 +23,6 @@ Usage:
 
     # Single URL
     python extract.py --url "https://youtube.com/watch?v=xxx" --label "cats"
-
-    # Extract at 720p
-    python extract.py --url "https://youtube.com/watch?v=xxx" --label "cats" --quality 720p
 
     # Batch from JSON config
     python extract.py --config categories.json
@@ -40,13 +43,6 @@ try:
 except ImportError:
     print("ERROR: opencv-python not installed. Run: pip install opencv-python-headless")
     sys.exit(1)
-
-QUALITY_CHOICES = ["360p", "720p", "1080p"]
-
-
-def parse_height(quality: str) -> int:
-    """Extract the pixel height from a quality string like '720p'."""
-    return int(quality.rstrip("p"))
 
 
 def search_youtube(query: str, max_results: int = 5) -> list[dict]:
@@ -96,30 +92,31 @@ def pick_best_video(videos: list[dict]) -> dict | None:
     return scored[0][1]
 
 
-def download_video(url: str, output_dir: str, name: str, quality: str = "1080p") -> str | None:
-    """Download a YouTube video using yt-dlp at the requested quality."""
-    height = parse_height(quality)
-    fmt = (
-        f"bestvideo[height<={height}][vcodec^=av01]+bestaudio"
-        f"/bestvideo[height<={height}][vcodec^=vp9]+bestaudio"
-        f"/bestvideo[height<={height}]+bestaudio"
-        f"/best[height<={height}]/best"
-    )
+def download_video(url: str, output_dir: str, name: str,
+                   cookies_from_browser: str | None = None) -> str | None:
+    """Download a YouTube video using yt-dlp.
+
+    Without browser cookies, downloads at 360p (mweb client).
+    Pass cookies_from_browser='chrome' for higher quality streams.
+    """
     output_path = os.path.join(output_dir, f"{name}.mp4")
     cmd = [
         "yt-dlp",
-        "-f", fmt,
+        "-f", "best",
         "--merge-output-format", "mp4",
         "--js-runtimes", "node",
-        "--remote-components", "ejs:github",
         "--extractor-args", "youtube:player_client=mweb",
         "-o", output_path,
         "--no-playlist",
         "--socket-timeout", "30",
         "--retries", "3",
-        url,
     ]
-    print(f"  Downloading ({quality})...")
+    if cookies_from_browser:
+        cmd.extend(["--cookies-from-browser", cookies_from_browser])
+
+    cmd.append(url)
+
+    print(f"  Downloading...")
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
         if result.returncode != 0:
@@ -161,7 +158,9 @@ def extract_frames(
     fps = cap.get(cv2.CAP_PROP_FPS)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     duration = total_frames / fps if fps > 0 else 0
-    print(f"  {fps:.0f} FPS, {duration:.0f}s, {total_frames} frames")
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    print(f"  {width}x{height}, {fps:.0f} FPS, {duration:.0f}s")
 
     frame_interval = max(1, int(fps * interval))
     start_frame = int(fps * skip_start)
@@ -189,7 +188,7 @@ def extract_frames(
             pos += frame_interval
             continue
 
-        # Filter blurry frames (low Laplacian variance = blurry)
+        # Filter blurry frames
         sharpness = cv2.Laplacian(gray, cv2.CV_64F).var()
         if sharpness < sharpness_thresh:
             skipped_blur += 1
@@ -226,8 +225,8 @@ def extract_frames(
 def process_urls(entries: list[dict], output_dir: str, interval: float,
                  max_frames: int, skip_start: float, skip_end: float,
                  brightness_thresh: float, sharpness_thresh: float,
-                 dedup_thresh: float, quality: str = "1080p",
-                 fmt: str = "jpg"):
+                 dedup_thresh: float, fmt: str = "jpg",
+                 cookies_from_browser: str | None = None):
     """Process a list of {label, url/list} entries."""
     temp_dir = os.path.join(output_dir, "_temp")
     os.makedirs(temp_dir, exist_ok=True)
@@ -237,7 +236,6 @@ def process_urls(entries: list[dict], output_dir: str, interval: float,
     for i, entry in enumerate(entries):
         label = entry["label"]
         url = entry["url"]
-        entry_quality = entry.get("quality", quality)
 
         urls = [url] if isinstance(url, str) else url
         urls = [u for u in urls if u and ("youtube" in u.lower() or "youtu.be" in u.lower())]
@@ -256,7 +254,7 @@ def process_urls(entries: list[dict], output_dir: str, interval: float,
             safe = label.replace(" ", "_").replace("/", "_")
             vid = u.split("v=")[-1].split("&")[0] if "v=" in u else u.split("/")[-1]
             name = f"{safe}_{vid[:8]}"
-            video_path = download_video(u, temp_dir, name, quality=entry_quality)
+            video_path = download_video(u, temp_dir, name, cookies_from_browser=cookies_from_browser)
 
             if not video_path:
                 continue
@@ -297,10 +295,9 @@ def main():
 Examples:
   python extract.py --search "cats playing" --label "cats"
   python extract.py --url "https://youtube.com/watch?v=xxx" --label "dogs"
-  python extract.py --url "https://youtube.com/watch?v=xxx" --label "dogs" --quality 720p
   python extract.py --config categories.json
-  python extract.py --config categories.json --output ./my_dataset
   python extract.py --labels labels.txt
+  python extract.py --labels labels.txt --cookies-from-browser chrome
         """,
     )
 
@@ -309,7 +306,7 @@ Examples:
     input_group.add_argument("--search", type=str, help="Search YouTube for this query")
     input_group.add_argument("--url", type=str, help="Direct YouTube URL")
     input_group.add_argument("--config", type=str, help="JSON config file with labels + URLs")
-    input_group.add_argument("--labels", type=str, help="Text file with one label per line (searches YouTube for each)")
+    input_group.add_argument("--labels", type=str, help="Text file with one label per line")
 
     # Label (required for --search and --url)
     parser.add_argument("--label", type=str, help="Label/category name for the frames")
@@ -326,13 +323,16 @@ Examples:
     parser.add_argument("--brightness", type=float, default=15.0,
                         help="Min brightness to keep frame (default: 15)")
     parser.add_argument("--sharpness", type=float, default=50.0,
-                        help="Min sharpness (Laplacian variance) to keep frame (default: 50)")
+                        help="Min sharpness (Laplacian variance) (default: 50)")
     parser.add_argument("--dedup", type=float, default=0.95,
-                        help="Similarity threshold to skip duplicate frames, 0-1 (default: 0.95)")
-    parser.add_argument("--quality", type=str, default="1080p", choices=QUALITY_CHOICES,
-                        help=f"Download/extract quality (default: 1080p, choices: {', '.join(QUALITY_CHOICES)})")
+                        help="Similarity threshold for duplicate detection, 0-1 (default: 0.95)")
     parser.add_argument("--format", type=str, default="jpg", choices=["jpg", "png"],
-                        help="Frame output format. 'png' is lossless (default: jpg)")
+                        help="Frame format: 'jpg' (quality 100) or 'png' (lossless)")
+
+    # Auth
+    parser.add_argument("--cookies-from-browser", type=str, default=None,
+                        metavar="BROWSER",
+                        help="Extract cookies from browser for higher quality downloads (e.g., 'chrome', 'edge')")
 
     # Output
     parser.add_argument("--output", type=str, default="./output",
@@ -348,10 +348,10 @@ Examples:
 
     os.makedirs(args.output, exist_ok=True)
 
+    quality_note = "" if args.cookies_from_browser else " (360p — use --cookies-from-browser for higher)"
     print("=" * 50)
     print("  YouTube Video Frame Extract")
-    print(f"  Output: {args.output}")
-    print(f"  Quality: {args.quality}")
+    print(f"  Output: {args.output}{quality_note}")
     print("=" * 50)
 
     if args.search:
@@ -382,7 +382,8 @@ Examples:
         temp_dir = os.path.join(args.output, "_temp")
         os.makedirs(temp_dir, exist_ok=True)
         safe = label.replace(" ", "_")
-        video_path = download_video(best["url"], temp_dir, safe, quality=args.quality)
+        video_path = download_video(best["url"], temp_dir, safe,
+                                    cookies_from_browser=args.cookies_from_browser)
         if video_path:
             extract_frames(
                 video_path, args.output, label,
@@ -405,7 +406,8 @@ Examples:
         temp_dir = os.path.join(args.output, "_temp")
         os.makedirs(temp_dir, exist_ok=True)
         safe = label.replace(" ", "_")
-        video_path = download_video(args.url, temp_dir, safe, quality=args.quality)
+        video_path = download_video(args.url, temp_dir, safe,
+                                    cookies_from_browser=args.cookies_from_browser)
         if video_path:
             extract_frames(
                 video_path, args.output, label,
@@ -439,10 +441,6 @@ Examples:
             print("\n[DRY RUN] Stopping here.")
             return
 
-        # Convert labels to entries format
-        entries = [{"label": label, "url": f"ytsearch1:valorant {label} skin gameplay"} for label in labels]
-
-        # For labels mode, we search YouTube for each label
         total = 0
         temp_dir = os.path.join(args.output, "_temp")
         os.makedirs(temp_dir, exist_ok=True)
@@ -469,7 +467,8 @@ Examples:
             print(f"  Selected: {best['title'][:50]}")
 
             safe = label.replace(" ", "_").replace("'", "").replace(":", "")
-            video_path = download_video(best["url"], temp_dir, safe, quality=args.quality)
+            video_path = download_video(best["url"], temp_dir, safe,
+                                        cookies_from_browser=args.cookies_from_browser)
 
             if not video_path:
                 continue
@@ -521,8 +520,8 @@ Examples:
             brightness_thresh=args.brightness,
             sharpness_thresh=args.sharpness,
             dedup_thresh=args.dedup,
-            quality=args.quality,
             fmt=args.format,
+            cookies_from_browser=args.cookies_from_browser,
         )
         print(f"\n{'=' * 50}")
         print(f"  DONE! Total frames: {total}")

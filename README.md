@@ -13,9 +13,8 @@ YouTube Video → Download → Extract Frames → Organized Dataset
 - **Configurable** interval, max frames, brightness filter
 - **Smart filtering** — skips dark, blurry, and duplicate frames automatically
 - **Batch processing** — process multiple videos via JSON config or labels file
-- **Quality control** — choose extraction quality: `360p`, `720p`, or `1080p`
-- **Best codec** — downloads the highest-quality stream (AV1/VP9, not compressed H.264)
 - **High quality frames** — JPEG quality 100, or lossless PNG with `--format png`
+- **Browser auth** — use `--cookies-from-browser chrome` for higher quality streams
 
 ## Installation
 
@@ -37,23 +36,9 @@ python extract.py --search "cats playing" --label "cats"
 python extract.py --url "https://youtube.com/watch?v=xxx" --label "dogs"
 ```
 
-### Choose extraction quality
-```bash
-python extract.py --url "https://youtube.com/watch?v=xxx" --label "dogs" --quality 720p
-```
-
-Quality options: `360p`, `720p`, `1080p` (default `1080p`).
-
-### Lossless frames (highest quality)
+### Lossless frames
 ```bash
 python extract.py --url "https://youtube.com/watch?v=xxx" --label "dogs" --format png
-```
-
-`png` saves frames losslessly (no compression artifacts) at the cost of larger files and slower extraction. Default is `jpg` at quality 100.
-
-### Batch processing (JSON config)
-```bash
-python extract.py --config categories.json
 ```
 
 ### Batch from labels file
@@ -72,6 +57,70 @@ Gaia's Vengeance
 
 The tool searches YouTube for each label (e.g., "valorant Reaver skin gameplay") and extracts frames from the best match.
 
+### Batch processing (JSON config)
+```bash
+python extract.py --config categories.json
+```
+
+---
+
+## 🔥 Getting Higher Quality (720p / 1080p)
+
+By default, YouTube only allows **360p** downloads without authentication. For higher quality, use your browser cookies:
+
+### Step-by-step:
+
+1. **Open your browser** (Chrome, Edge, or Firefox) and **log into YouTube**
+2. **Find the videos you want** — search for skin showcases, gameplay, etc.
+3. **Copy the video URLs** into a `categories.json` file:
+
+```json
+[
+    {
+        "label": "Reaver",
+        "url": "https://youtube.com/watch?v=ABC123"
+    },
+    {
+        "label": "Oni",
+        "url": [
+            "https://youtube.com/watch?v=DEF456",
+            "https://youtube.com/watch?v=GHI789"
+        ]
+    },
+    {
+        "label": "Spectrum",
+        "url": "https://youtube.com/watch?v=JKL012"
+    }
+]
+```
+
+4. **Run with your browser cookies**:
+
+```bash
+python extract.py --config categories.json --cookies-from-browser chrome
+```
+
+Supported browsers: `chrome`, `edge`, `firefox`
+
+### Why this works
+
+| Mode | Quality | How |
+|------|---------|-----|
+| Auto (no cookies) | 360p | YouTube blocks higher quality for unauthenticated requests |
+| Manual + cookies | 720p–1080p | Your logged-in session is trusted by YouTube |
+
+> **Note:** Higher quality is not guaranteed even with cookies — YouTube may still restrict some videos. But it significantly improves your chances.
+
+### Alternative: Use local videos
+
+If cookies don't work, download videos yourself (browser extensions, online converters) and process them locally:
+
+```bash
+python extract.py --url "file:///C:/Users/you/Videos/reaver_showcase.mp4" --label "Reaver"
+```
+
+---
+
 ## Config File Format
 
 Create a `categories.json`:
@@ -87,21 +136,20 @@ Create a `categories.json`:
         "url": [
             "https://youtube.com/watch?v=yyy",
             "https://youtube.com/watch?v=zzz"
-        ],
-        "quality": "720p"
+        ]
     }
 ]
 ```
 
-Each entry can optionally set `quality` (`360p`, `720p`, `1080p`) to override the global `--quality` flag for that label.
+Each entry can have a single URL string or an array of URLs for the same label.
 
 ## Options
 
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--search` | — | Search YouTube for this query |
-| `--url` | — | Direct YouTube URL |
-| `--config` | — | JSON config file |
+| `--url` | — | Direct YouTube URL (or local file path) |
+| `--config` | — | JSON config file with labels + URLs |
 | `--labels` | — | Text file with one label per line |
 | `--label` | — | Label name (required with `--url`) |
 | `--output` | `./output` | Output directory |
@@ -112,7 +160,7 @@ Each entry can optionally set `quality` (`360p`, `720p`, `1080p`) to override th
 | `--brightness` | `15` | Min brightness to keep frame |
 | `--sharpness` | `50` | Min sharpness to keep frame (higher = sharper) |
 | `--dedup` | `0.95` | Duplicate similarity threshold, 0-1 (lower = stricter) |
-| `--quality` | `1080p` | Download/extract quality: `360p`, `720p`, `1080p` |
+| `--cookies-from-browser` | — | Extract cookies for higher quality (e.g., `chrome`) |
 | `--format` | `jpg` | Frame format: `jpg` (quality 100) or `png` (lossless) |
 | `--dry-run` | — | Search only, don't download |
 
@@ -132,14 +180,14 @@ Adjust with `--brightness`, `--sharpness`, and `--dedup` flags.
 
 ```
 output/
-├── cats/
-│   ├── cats_00001.jpg
-│   ├── cats_00002.jpg
+├── Reaver/
+│   ├── Reaver_00001.jpg
+│   ├── Reaver_00002.jpg
 │   └── ...
-├── dogs/
-│   ├── dogs_00001.jpg
+├── Oni/
+│   ├── Oni_00001.jpg
 │   └── ...
-└── birds/
+└── Spectrum/
     └── ...
 ```
 
