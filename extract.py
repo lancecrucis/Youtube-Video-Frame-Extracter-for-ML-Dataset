@@ -248,6 +248,9 @@ def process_urls(entries: list[dict], output_dir: str, interval: float,
         label_frames = 0
 
         for j, u in enumerate(urls):
+            if label_frames >= max_frames:
+                break
+
             if len(urls) > 1:
                 print(f"  Video {j+1}/{len(urls)}: {u}")
 
@@ -259,10 +262,11 @@ def process_urls(entries: list[dict], output_dir: str, interval: float,
             if not video_path:
                 continue
 
+            remaining = max_frames - label_frames
             n = extract_frames(
                 video_path, output_dir, label,
                 interval=interval,
-                max_frames=max_frames,
+                max_frames=remaining,
                 skip_start=skip_start,
                 skip_end=skip_end,
                 brightness_thresh=brightness_thresh,

@@ -1,25 +1,21 @@
 [
     {
-        "label": "Oni",
+        "label": "mystbloom",
         "url": [
-            "https://youtu.be/qoICo17c9T8",
-            "https://youtu.be/ei1YoeFiXHw?si=jjTszkNmuvPhE7gt"
-        ]
-        
-      
+            "https://youtu.be/M4-1l49CF6E?si=cWdeTPUFRRlLxnZH",
+            "https://youtu.be/JLr1eTkAEcA?si=aqmEDel4lvdnhEck",
+            "https://youtu.be/ZFv3936spbE?si=5nJQkVuk5wjq7FN1"
+        ],
+        "max-frames": "500"
     },
     {
-        "label": "Glitchpop",
+        "label": "reaver",
         "url": [
-            "https://www.youtube.com/watch?v=cQvYigbe-f4",
-            "https://youtu.be/W_eQENT8QPY?si=UF4lqbI-QYQA-xZY"
-        ]
-    },
-    {
-        "label": "Nebula",
-        "url": [
-            "https://youtu.be/hXzem4BtltY?si=60n9P7oo6HRTG9NT",
-            "https://youtu.be/kpZbl0t5kQw?si=rVgWw8_5S3KEX76M"
-        ]
+            "https://youtu.be/_Rc4VPx48cc?si=FlconrdmfauYXLi2",
+            "https://youtu.be/goF8dxYDNSk?si=9Y268tIIC3L9iF3R",
+            "https://youtu.be/TV-XRoSisMs?si=iYMZBLZyVbl3Lmyd"
+        ],
+        "max-frames": "500"
     }
+    
 ]
