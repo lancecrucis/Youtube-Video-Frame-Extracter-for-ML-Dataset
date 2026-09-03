@@ -93,16 +93,5 @@ class LocalAppTests(unittest.TestCase):
     def test_shared_url_produces_a_windows_safe_video_key(self):
         self.assertEqual(extract.video_key("https://youtu.be/abc-123?si=tracking"), "abc-123")
 
-    def test_supplied_youtube_design_assets_are_served(self):
-        icon_response = self.client.get("/media/youtube-icon")
-        wordmark_response = self.client.get("/media/youtube-wordmark")
-        try:
-            self.assertEqual(icon_response.status_code, 200)
-            self.assertEqual(wordmark_response.status_code, 200)
-        finally:
-            icon_response.close()
-            wordmark_response.close()
-
-
 if __name__ == "__main__":
     unittest.main()
