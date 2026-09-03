@@ -147,6 +147,20 @@ def hero_animation():
     return send_file(BASE_DIR / "design" / "0903.mp4", mimetype="video/mp4", conditional=True)
 
 
+@app.get("/media/youtube-icon")
+def youtube_icon():
+    return send_file(BASE_DIR / "design" / "yt_icon_red_digital.png", mimetype="image/png", conditional=True)
+
+
+@app.get("/media/youtube-wordmark")
+def youtube_wordmark():
+    return send_file(
+        BASE_DIR / "design" / "yt_logo_fullcolor_white_digital.png",
+        mimetype="image/png",
+        conditional=True,
+    )
+
+
 @app.post("/api/extract")
 def start_extraction():
     payload = request.get_json(silent=True) or {}

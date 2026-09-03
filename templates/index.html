@@ -12,8 +12,12 @@
   <body>
     <main>
       <section class="min-h-svh bg-ink px-[clamp(1.25rem,6vw,6rem)] pt-[clamp(3rem,5vw,5rem)] pb-[clamp(5rem,10vw,10rem)] text-white" id="extractor" aria-labelledby="extractor-title">
-        <div class="mx-auto mb-[clamp(2.5rem,4vw,4rem)] max-w-[1450px]">
-          <h1 class="max-w-[15ch] text-4xl leading-[.9] font-extrabold tracking-[-.07em] sm:text-5xl lg:text-6xl" id="extractor-title">YouTube Video<br>Frame Extractor <em class="mt-[.55em] block text-[.38em] font-extrabold tracking-[.01em] text-brand-red not-italic">for Datasets.</em></h1>
+        <div class="relative mx-auto mb-[clamp(2.5rem,4vw,4rem)] flex max-w-[1450px] items-start justify-between gap-10 overflow-hidden">
+          <h1 class="relative z-10 max-w-[15ch] shrink-0 text-4xl leading-[.9] font-extrabold tracking-[-.07em] sm:text-5xl lg:text-6xl" id="extractor-title">YouTube Video<br>Frame Extractor <em class="mt-[.55em] block text-[.38em] font-extrabold tracking-[.01em] text-brand-red not-italic">for Datasets.</em></h1>
+          <div class="relative hidden min-h-38 w-[min(46vw,560px)] flex-1 sm:block" aria-hidden="true">
+            <img class="ml-auto block w-[clamp(9rem,16vw,13rem)] object-contain" src="{{ url_for('youtube_wordmark') }}" alt="">
+            <img class="absolute right-0 bottom-0 w-full opacity-90" src="{{ url_for('static', filename='media/frame-sequence.svg') }}" alt="">
+          </div>
         </div>
 
         <div class="mx-auto grid max-w-[1450px] overflow-hidden rounded-2xl bg-white text-ink shadow-[0_2rem_7rem_rgba(0,0,0,.38)] lg:grid-cols-[1.15fr_.85fr]">
@@ -122,12 +126,14 @@
         </div>
       </section>
 
-      <section class="grid min-h-svh grid-cols-1 content-center justify-items-center gap-[clamp(1.5rem,3vw,2.75rem)] overflow-hidden bg-[#F7F7F7] px-[clamp(1.25rem,5vw,5rem)] py-[clamp(4rem,7vw,7rem)]" aria-labelledby="hero-title">
-        <div class="relative z-10 m-0 text-center">
-          <h2 class="m-0 text-3xl leading-[.92] font-extrabold tracking-[-.07em] sm:text-4xl lg:text-5xl" id="hero-title">YouTube Frame <em class="text-brand-red not-italic">Extractor v1</em></h2>
+      <section class="relative grid min-h-svh grid-cols-1 content-center justify-items-center gap-[clamp(1.5rem,3vw,2.75rem)] overflow-hidden bg-[#F7F7F7] px-[clamp(1.25rem,5vw,5rem)] py-[clamp(4rem,7vw,7rem)]" aria-labelledby="hero-title">
+        <div class="relative z-10 flex items-center justify-center gap-3 text-center sm:gap-5">
+          <img class="w-14 -rotate-3 object-contain drop-shadow-[0_.7rem_1.3rem_rgba(255,0,51,.16)] sm:w-18" src="{{ url_for('youtube_icon') }}" alt="" aria-hidden="true">
+          <h2 class="m-0 text-3xl leading-[.92] font-extrabold tracking-[-.07em] sm:text-4xl lg:text-5xl" id="hero-title">YouTube Frame <em class="text-[#E51E10] not-italic">Extractor v1</em></h2>
         </div>
 
         <div class="relative z-0 aspect-square w-[min(90vw,660px)] sm:w-[min(62vw,660px)]" aria-label="Animated YouTube-inspired illustration">
+          <img class="pointer-events-none absolute -inset-[5%] z-0 h-[110%] w-[110%] max-w-none" src="{{ url_for('static', filename='media/crop-marks.svg') }}" alt="" aria-hidden="true">
           <video class="h-full w-full object-contain mix-blend-multiply" autoplay muted loop playsinline poster="{{ url_for('static', filename='media/hero-art.png') }}">
             <source src="{{ url_for('hero_animation') }}" type="video/mp4">
             <img src="{{ url_for('static', filename='media/hero-art.png') }}" alt="Illustrated woman sitting on a red YouTube play button">
