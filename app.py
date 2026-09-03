@@ -15,6 +15,7 @@ from flask import Flask, abort, jsonify, render_template, request, send_file
 
 BASE_DIR = Path(__file__).resolve().parent
 app = Flask(__name__)
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 jobs: dict[str, dict] = {}
 jobs_lock = threading.Lock()

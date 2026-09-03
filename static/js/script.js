@@ -9,7 +9,6 @@ const jobState = document.querySelector('#job-state');
 const jobMessage = document.querySelector('#job-message');
 const jobCount = document.querySelector('#job-count');
 const progressBar = document.querySelector('#progress-bar');
-const statusDot = document.querySelector('#status-dot');
 const cancelButton = document.querySelector('#cancel-button');
 const frameGrid = document.querySelector('#frame-grid');
 const activityLog = document.querySelector('#activity-log');
@@ -73,7 +72,6 @@ async function startExtraction(payload) {
     emptyState.hidden = true;
     jobState.hidden = false;
     cancelButton.hidden = false;
-    statusDot.className = 'status-dot running';
     pollJob();
     return { jobId: currentJob, status: 'started' };
   } catch (error) {
@@ -113,13 +111,11 @@ async function pollJob() {
     });
 
     if (job.status === 'complete') {
-      statusDot.className = 'status-dot complete';
       cancelButton.hidden = true;
       resetButton();
       return;
     }
     if (job.status === 'error' || job.status === 'cancelled') {
-      statusDot.className = 'status-dot';
       cancelButton.hidden = true;
       resetButton();
       return;
@@ -127,7 +123,6 @@ async function pollJob() {
     pollTimer = window.setTimeout(pollJob, 1200);
   } catch (error) {
     jobMessage.textContent = error.message;
-    statusDot.className = 'status-dot';
     resetButton();
   }
 }
