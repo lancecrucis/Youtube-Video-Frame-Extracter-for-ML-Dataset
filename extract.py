@@ -32,7 +32,7 @@ import json
 import os
 import subprocess
 import sys
-from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from system_checks import ffmpeg_path, javascript_runtime_args
 
@@ -87,6 +87,21 @@ def pick_best_video(videos: list[dict]) -> dict | None:
         scored.append((score, v))
     scored.sort(key=lambda x: x[0], reverse=True)
     return scored[0][1]
+
+
+def video_key(url: str) -> str:
+    """Return a filename-safe key for standard and shared YouTube URLs."""
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    if host == "youtu.be":
+        candidate = parsed.path.strip("/").split("/")[0]
+    elif parsed.path.rstrip("/") == "/watch":
+        candidate = parse_qs(parsed.query).get("v", [""])[0]
+    else:
+        parts = [part for part in parsed.path.split("/") if part]
+        candidate = parts[-1] if parts else ""
+    cleaned = "".join(char for char in candidate if char.isalnum() or char in "_-")
+    return cleaned[:16] or "video"
 
 
 def download_video(url: str, output_dir: str, name: str,
@@ -266,8 +281,7 @@ def process_urls(entries: list[dict], output_dir: str, interval: float,
                 print(f"  Video {j+1}/{len(urls)}: {u}")
 
             safe = label.replace(" ", "_").replace("/", "_")
-            vid = u.split("v=")[-1].split("&")[0] if "v=" in u else u.split("/")[-1]
-            name = f"{safe}_{vid[:8]}"
+            name = f"{safe}_{video_key(u)}"
             video_path = download_video(u, temp_dir, name, cookies=cookies)
 
             if not video_path:
@@ -310,6 +324,7 @@ def main():
 Examples:
   python extract.py --search "cats playing" --label "cats"
   python extract.py --url "https://youtube.com/watch?v=xxx" --label "dogs"
+  python extract.py --url "https://youtu.be/aaa" --url "https://youtu.be/bbb" --label "dogs"
   python extract.py --config categories.json
   python extract.py --labels labels.txt
   python extract.py --config categories.json --cookies cookies.txt
@@ -319,7 +334,11 @@ Examples:
     # Input options (mutually exclusive)
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument("--search", type=str, help="Search YouTube for this query")
-    input_group.add_argument("--url", type=str, help="Direct YouTube URL")
+    input_group.add_argument(
+        "--url",
+        action="append",
+        help="Direct YouTube URL; repeat this option to add multiple videos to one label",
+    )
     input_group.add_argument("--config", type=str, help="JSON config file with labels + URLs")
     input_group.add_argument("--labels", type=str, help="Text file with one label per line")
 
@@ -412,27 +431,23 @@ Examples:
                 pass
 
     elif args.url:
-        label = args.label
-        temp_dir = os.path.join(args.output, "_temp")
-        os.makedirs(temp_dir, exist_ok=True)
-        safe = label.replace(" ", "_")
-        video_path = download_video(args.url, temp_dir, safe, cookies=args.cookies)
-        if video_path:
-            extract_frames(
-                video_path, args.output, label,
-                interval=args.interval,
-                max_frames=args.max_frames,
-                skip_start=args.skip_start,
-                skip_end=args.skip_end,
-                brightness_thresh=args.brightness,
-                sharpness_thresh=args.sharpness,
-                dedup_thresh=args.dedup,
-                fmt=args.format,
-            )
-            try:
-                os.remove(video_path)
-            except:
-                pass
+        total = process_urls(
+            [{"label": args.label, "url": args.url}],
+            args.output,
+            interval=args.interval,
+            max_frames=args.max_frames,
+            skip_start=args.skip_start,
+            skip_end=args.skip_end,
+            brightness_thresh=args.brightness,
+            sharpness_thresh=args.sharpness,
+            dedup_thresh=args.dedup,
+            fmt=args.format,
+            cookies=args.cookies,
+        )
+        print(f"\n{'=' * 50}")
+        print(f"  DONE! Total frames: {total}")
+        print(f"  Output: {args.output}")
+        print(f"{'=' * 50}")
 
     elif args.labels:
         with open(args.labels) as f:

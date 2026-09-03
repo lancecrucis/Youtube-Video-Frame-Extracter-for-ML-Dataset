@@ -32,9 +32,12 @@
   }
 
   .field input:not([type="range"]),
-  .field select {
+  .field select,
+  .field textarea {
     @apply min-h-14 w-full rounded-lg border border-line bg-white px-4 outline-none transition focus:border-ink focus:ring-4 focus:ring-ink/10;
   }
+
+  .field textarea { @apply py-4 leading-7; }
 
   .extract-button {
     @apply inline-flex min-h-16 items-center gap-5 rounded-full border-0 bg-ink px-6 py-2 font-extrabold text-white shadow-xl shadow-ink/15 transition hover:-translate-y-0.5 hover:bg-brand-red hover:shadow-brand-red/20 disabled:cursor-wait disabled:opacity-55;

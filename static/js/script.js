@@ -1,6 +1,9 @@
 const form = document.querySelector('#extract-form');
 const sourceInput = document.querySelector('#source');
 const sourceLabel = document.querySelector('#source-label');
+const sourceHelp = document.querySelector('#source-help');
+const labelInput = document.querySelector('#label');
+const outputPath = document.querySelector('#output-path');
 const modeButtons = [...document.querySelectorAll('.mode-button')];
 const errorMessage = document.querySelector('#form-error');
 const extractButton = document.querySelector('#extract-button');
@@ -25,11 +28,19 @@ modeButtons.forEach((button) => {
     currentMode = button.dataset.mode;
     modeButtons.forEach((item) => item.classList.toggle('active', item === button));
     const isSearch = currentMode === 'search';
-    sourceLabel.textContent = isSearch ? 'Search phrase' : 'YouTube URL';
-    sourceInput.type = isSearch ? 'text' : 'url';
-    sourceInput.placeholder = isSearch ? 'e.g. cinematic city night drive' : 'https://youtube.com/watch?v=…';
+    sourceLabel.textContent = isSearch ? 'Search phrase' : 'YouTube URLs';
+    sourceInput.placeholder = isSearch ? 'e.g. cinematic city night drive' : 'Paste one YouTube URL per line';
+    sourceInput.rows = isSearch ? 2 : 4;
+    sourceHelp.textContent = isSearch
+      ? 'The best matching video will be added to the folder label.'
+      : 'Every video will add frames to the same folder label.';
     sourceInput.focus();
   });
+});
+
+labelInput.addEventListener('input', () => {
+  const folder = labelInput.value.trim() || '<folder label>';
+  outputPath.textContent = `output/${folder}/`;
 });
 
 intervalInput.addEventListener('input', () => {
@@ -69,7 +80,14 @@ async function startExtraction(payload) {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'Could not start extraction.');
 
+    if (pollTimer) window.clearTimeout(pollTimer);
     currentJob = result.job_id;
+    frameGrid.replaceChildren();
+    frameGrid.dataset.rendered = '0';
+    activityLog.textContent = '';
+    jobMessage.textContent = 'Preparing your video…';
+    jobCount.textContent = '0 frames';
+    progressBar.style.width = '2%';
     emptyState.hidden = true;
     jobState.hidden = false;
     cancelButton.hidden = false;
@@ -91,7 +109,8 @@ cancelButton.addEventListener('click', async () => {
 async function pollJob() {
   if (!currentJob) return;
   try {
-    const response = await fetch(`/api/jobs/${currentJob}`);
+    const renderedCount = Number(frameGrid.dataset.rendered || 0);
+    const response = await fetch(`/api/jobs/${currentJob}?after=${renderedCount}`);
     const job = await response.json();
     if (!response.ok) throw new Error('Could not read extraction status.');
 
@@ -101,15 +120,19 @@ async function pollJob() {
     activityLog.textContent = job.logs.join('\n');
     activityLog.scrollTop = activityLog.scrollHeight;
 
-    const knownSources = new Set([...frameGrid.querySelectorAll('img')].map((img) => img.getAttribute('src')));
     job.frames.forEach((source) => {
-      if (knownSources.has(source)) return;
       const image = document.createElement('img');
       image.src = source;
       image.alt = `Extracted frame from ${job.label}`;
       image.loading = 'lazy';
       frameGrid.append(image);
     });
+    frameGrid.dataset.rendered = String(renderedCount + job.frames.length);
+
+    if (job.has_more_frames) {
+      pollTimer = window.setTimeout(pollJob, 50);
+      return;
+    }
 
     if (job.status === 'complete') {
       cancelButton.hidden = true;
@@ -142,13 +165,12 @@ function registerWebMcpTool() {
     context.registerTool({
       name: 'start_frame_extraction',
       title: 'Start frame extraction',
-      description: 'Start extracting filtered image frames from a YouTube URL into a named local folder.',
+      description: 'Extract filtered image frames from one or more YouTube URLs into one named local folder.',
       inputSchema: {
         type: 'object',
         properties: {
-          source: { type: 'string', description: 'A full YouTube video URL.' },
+          source: { type: 'string', description: 'One or more full YouTube URLs separated by new lines.' },
           label: { type: 'string', description: 'The folder label for extracted frames.' },
-          output: { type: 'string', description: 'A local output path, relative to the project by default.' },
           interval: { type: 'number', minimum: 0.1, maximum: 60 },
           max_frames: { type: 'integer', minimum: 1, maximum: 10000 },
           format: { type: 'string', enum: ['jpg', 'png'] },
@@ -159,21 +181,21 @@ function registerWebMcpTool() {
       annotations: { readOnlyHint: false, untrustedContentHint: true },
       async execute(input) {
         sourceInput.value = input.source;
-        document.querySelector('#label').value = input.label;
-        if (input.output) document.querySelector('#output').value = input.output;
+        labelInput.value = input.label;
+        outputPath.textContent = `output/${input.label}/`;
         if (input.interval) intervalInput.value = input.interval;
         if (input.max_frames) document.querySelector('#max-frames').value = input.max_frames;
         if (input.format) document.querySelector('#format').value = input.format;
         currentMode = 'url';
         modeButtons.forEach((item) => item.classList.toggle('active', item.dataset.mode === 'url'));
-        sourceLabel.textContent = 'YouTube URL';
-        sourceInput.type = 'url';
+        sourceLabel.textContent = 'YouTube URLs';
+        sourceHelp.textContent = 'Every video will add frames to the same folder label.';
+        sourceInput.rows = 4;
         document.querySelector('#extractor').scrollIntoView({ behavior: 'smooth' });
         return startExtraction({
           mode: 'url',
           source: input.source,
           label: input.label,
-          output: input.output || 'output',
           interval: input.interval || 1.5,
           max_frames: input.max_frames || 500,
           format: input.format || 'jpg',

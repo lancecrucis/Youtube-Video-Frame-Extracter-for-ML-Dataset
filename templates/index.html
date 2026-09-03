@@ -29,19 +29,20 @@
             <p class="mb-6 border-l-2 border-brand-red px-4 text-sm leading-6 text-neutral-500">Standard-quality downloads are ready. Install FFmpeg only if you need merged 720p streams.</p>
             {% endif %}
 
-            <div class="field [&>input]:min-h-18 [&>input]:text-base">
-              <label for="source" id="source-label">YouTube URL</label>
-              <input id="source" name="source" type="url" placeholder="https://youtube.com/watch?v=…" autocomplete="off" required>
+            <div class="field">
+              <label for="source" id="source-label">YouTube URLs</label>
+              <textarea class="min-h-30 resize-y text-base" id="source" name="source" rows="4" placeholder="Paste one YouTube URL per line" aria-describedby="source-help" autocomplete="off" required></textarea>
+              <p class="m-0 text-sm leading-6 text-neutral-500" id="source-help">Every video will add frames to the same folder label.</p>
             </div>
 
-            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+            <div class="mt-5 grid gap-5 sm:grid-cols-[1fr_auto]">
               <div class="field">
                 <label for="label">Folder label</label>
                 <input id="label" name="label" type="text" placeholder="e.g. Oni" maxlength="80" required>
               </div>
-              <div class="field">
-                <label for="output">Output location</label>
-                <input id="output" name="output" type="text" value="output" spellcheck="false">
+              <div class="min-w-58 rounded-lg border border-line bg-soft px-4 py-3">
+                <p class="m-0 text-xs font-bold uppercase tracking-[.12em]">Fixed output folder</p>
+                <code class="mt-2 block text-sm font-bold text-brand-red-dark" id="output-path">output/&lt;folder label&gt;/</code>
               </div>
             </div>
 
@@ -53,7 +54,7 @@
                   <input class="w-full accent-brand-red" id="interval" name="interval" type="range" min="0.5" max="10" step="0.5" value="1.5">
                 </div>
                 <div class="field">
-                  <label for="max-frames">Maximum frames</label>
+                  <label for="max-frames">Maximum frames (total)</label>
                   <input id="max-frames" name="max_frames" type="number" min="1" max="10000" value="500">
                 </div>
                 <div class="field">

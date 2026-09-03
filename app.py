@@ -11,6 +11,7 @@ import threading
 import uuid
 import webbrowser
 from pathlib import Path
+from urllib.parse import urlparse
 
 from flask import Flask, abort, jsonify, render_template, request, send_file
 from system_checks import ffmpeg_path, javascript_runtime
@@ -40,6 +41,24 @@ def _number(payload: dict, name: str, default: float, minimum: float, maximum: f
     if not minimum <= value <= maximum:
         raise ValueError(f"{name.replace('_', ' ').title()} must be between {minimum} and {maximum}.")
     return value
+
+
+def _youtube_urls(value: str) -> list[str]:
+    candidates = [part.strip() for part in re.split(r"[\s,]+", value) if part.strip()]
+    if not candidates:
+        raise ValueError("Add at least one YouTube URL.")
+    if len(candidates) > 100:
+        raise ValueError("Add no more than 100 YouTube URLs at a time.")
+
+    valid_hosts = {"youtube.com", "www.youtube.com", "m.youtube.com", "music.youtube.com", "youtu.be"}
+    invalid = []
+    for candidate in candidates:
+        parsed = urlparse(candidate)
+        if parsed.scheme not in {"http", "https"} or (parsed.hostname or "").lower() not in valid_hosts:
+            invalid.append(candidate)
+    if invalid:
+        raise ValueError(f"Enter full YouTube URLs, one per line. Invalid entry: {invalid[0]}")
+    return candidates
 
 
 def _set_job(job_id: str, **changes) -> None:
@@ -141,15 +160,12 @@ def start_extraction():
         source = str(payload.get("source", "")).strip()
         if not source:
             raise ValueError("Add a YouTube URL or search phrase.")
-        if mode == "url" and not ("youtube.com" in source.lower() or "youtu.be" in source.lower()):
-            raise ValueError("Enter a valid YouTube URL.")
+        urls = _youtube_urls(source) if mode == "url" else []
+        if mode == "search" and any(char in source for char in "\r\n"):
+            raise ValueError("Enter one search phrase.")
 
         label = _safe_label(str(payload.get("label", "")))
-        output_value = str(payload.get("output", "output")).strip() or "output"
-        output_dir = Path(output_value).expanduser()
-        if not output_dir.is_absolute():
-            output_dir = BASE_DIR / output_dir
-        output_dir = output_dir.resolve()
+        output_dir = (BASE_DIR / "output").resolve()
 
         interval = _number(payload, "interval", 1.5, 0.1, 60)
         max_frames = int(_number(payload, "max_frames", 500, 1, 10000))
@@ -171,29 +187,41 @@ def start_extraction():
         sys.executable,
         "-u",
         str(BASE_DIR / "extract.py"),
-        f"--{mode}",
-        source,
-        "--label",
-        label,
-        "--output",
-        str(output_dir),
-        "--interval",
-        str(interval),
-        "--max-frames",
-        str(max_frames),
-        "--brightness",
-        str(brightness),
-        "--sharpness",
-        str(sharpness),
-        "--dedup",
-        str(dedup),
-        "--format",
-        image_format,
     ]
+    if mode == "url":
+        for url in urls:
+            command.extend(["--url", url])
+    else:
+        command.extend(["--search", source])
+    command.extend(
+        [
+            "--label",
+            label,
+            "--output",
+            str(output_dir),
+            "--interval",
+            str(interval),
+            "--max-frames",
+            str(max_frames),
+            "--brightness",
+            str(brightness),
+            "--sharpness",
+            str(sharpness),
+            "--dedup",
+            str(dedup),
+            "--format",
+            image_format,
+        ]
+    )
     if payload.get("use_cookies") and (BASE_DIR / "cookies.txt").exists():
         command.extend(["--cookies", str(BASE_DIR / "cookies.txt")])
 
     job_id = uuid.uuid4().hex
+    label_dir = output_dir / label
+    initial_frames = {
+        path.name for path in label_dir.glob(f"*.{image_format}")
+    } if label_dir.exists() else set()
+
     with jobs_lock:
         jobs[job_id] = {
             "id": job_id,
@@ -204,6 +232,7 @@ def start_extraction():
             "label": label,
             "output": str(output_dir),
             "format": image_format,
+            "initial_frames": initial_frames,
         }
 
     threading.Thread(target=_run_job, args=(job_id, command), daemon=True).start()
@@ -218,11 +247,25 @@ def job_status(job_id: str):
             abort(404)
         response = dict(job)
 
+    initial_frames = response.pop("initial_frames", set())
     label_dir = Path(response["output"]) / response["label"]
     extension = response["format"]
-    frame_paths = sorted(label_dir.glob(f"*.{extension}"))[-8:] if label_dir.exists() else []
-    response["frames"] = [f"/api/jobs/{job_id}/frames/{path.name}" for path in frame_paths]
-    response["frame_count"] = len(list(label_dir.glob(f"*.{extension}"))) if label_dir.exists() else 0
+    frame_paths = (
+        sorted(
+            path for path in label_dir.glob(f"*.{extension}")
+            if path.name not in initial_frames
+        )
+        if label_dir.exists()
+        else []
+    )
+    try:
+        after = max(0, int(request.args.get("after", 0)))
+    except ValueError:
+        after = 0
+    next_paths = frame_paths[after:after + 100]
+    response["frames"] = [f"/api/jobs/{job_id}/frames/{path.name}" for path in next_paths]
+    response["frame_count"] = len(frame_paths)
+    response["has_more_frames"] = after + len(next_paths) < len(frame_paths)
     return jsonify(response)
 
 
