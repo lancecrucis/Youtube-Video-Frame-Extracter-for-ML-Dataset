@@ -87,13 +87,13 @@
             <div class="mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
               <button class="extract-button group w-full sm:w-auto" id="extract-button" type="submit">
                 <span class="button-label">Extract frames</span>
-                <span class="play-mark" aria-hidden="true">→</span>
+                <span class="play-mark" aria-hidden="true">⟶</span>
               </button>
               <p id="form-error" class="m-0 text-sm text-brand-red-dark" role="alert"></p>
             </div>
           </form>
 
-          <aside class="min-h-[420px] border-t border-line bg-[#eceae6] p-[clamp(1.5rem,3vw,3rem)] lg:min-h-[580px] lg:border-t-0 lg:border-l" aria-live="polite">
+          <aside class="min-h-[420px] border-t border-line bg-[#eceae6] p-[clamp(1.5rem,3vw,3rem)] lg:h-[580px] lg:border-t-0 lg:border-l" aria-live="polite">
             <div class="flex items-center justify-between">
               <p class="m-0 text-xs font-extrabold uppercase tracking-[.16em]">Activity</p>
             </div>
@@ -102,7 +102,7 @@
               <h3 class="m-0 text-lg font-bold">Your frames will appear here.</h3>
               <p class="mt-2 max-w-68 text-sm leading-6 text-neutral-500">Set your source and label, then start the extraction.</p>
             </div>
-            <div class="mt-10" id="job-state" hidden>
+            <div class="activity-scroll mt-8 max-h-[calc(65vh-4rem)] overflow-y-auto pr-2 lg:max-h-[470px]" id="job-state" hidden>
               <div class="flex items-start justify-between gap-4">
                 <div>
                   <p class="mb-1.5 text-neutral-500" id="job-message">Preparing your video…</p>
@@ -131,21 +131,12 @@
             <source src="{{ url_for('hero_animation') }}" type="video/mp4">
             <img src="{{ url_for('static', filename='media/hero-art.png') }}" alt="Illustrated woman sitting on a red YouTube play button">
           </video>
-          <p class="absolute bottom-[-1.35rem] left-1/2 z-10 m-0 w-max -translate-x-1/2 text-xs font-bold tracking-[.18em]">VIDEO → FRAME → DATASET</p>
+          <p class="absolute bottom-[-2.25rem] left-1/2 z-10 m-0 inline-flex w-max -translate-x-1/2 items-center gap-3 font-mono text-base font-bold tracking-[.16em] sm:gap-4 sm:text-lg">
+            <span>VIDEO</span><span class="text-brand-red" aria-hidden="true">→</span><span>FRAME</span><span class="text-brand-red" aria-hidden="true">→</span><span>DATASET</span>
+          </p>
         </div>
 
-        <p class="relative z-10 m-0 mt-1 max-w-152 text-center text-base leading-7">Turn any YouTube video into a clean, organized set of images—without living in the command line.</p>
-      </section>
-
-      <section class="px-[clamp(1.25rem,6vw,6rem)] py-[clamp(6rem,11vw,11rem)]" id="how-it-works" aria-labelledby="how-title">
-        <div class="mx-auto mb-[clamp(3rem,6vw,6rem)] max-w-[1450px]">
-          <h2 class="m-0 max-w-[14ch] text-[clamp(2.75rem,5vw,5rem)] leading-[.84] font-extrabold tracking-[-.07em]" id="how-title">Less sorting.<br><em class="text-brand-red not-italic">More creating.</em></h2>
-        </div>
-        <ol class="mx-auto grid max-w-[1450px] list-none border-t border-line p-0 md:grid-cols-3">
-          <li class="min-h-62 border-b border-line p-8 md:border-r md:border-b-0"><span class="text-xs font-extrabold tracking-[.14em] text-brand-red">01</span><h3 class="mt-14 mb-3 text-xl font-bold">Choose a video</h3><p class="m-0 max-w-76 leading-7 text-neutral-500">Paste a link or let the app search YouTube for the right footage.</p></li>
-          <li class="min-h-62 border-b border-line p-8 md:border-r md:border-b-0"><span class="text-xs font-extrabold tracking-[.14em] text-brand-red">02</span><h3 class="mt-14 mb-3 text-xl font-bold">Keep the good stuff</h3><p class="m-0 max-w-76 leading-7 text-neutral-500">Dark, blurry, and near-duplicate frames are filtered automatically.</p></li>
-          <li class="min-h-62 p-8"><span class="text-xs font-extrabold tracking-[.14em] text-brand-red">03</span><h3 class="mt-14 mb-3 text-xl font-bold">Find it organized</h3><p class="m-0 max-w-76 leading-7 text-neutral-500">Each label becomes its own folder with clean, sequential filenames.</p></li>
-        </ol>
+        <p class="relative z-10 m-0 mt-5 max-w-176 text-center text-lg leading-8 font-medium text-neutral-700 sm:text-xl">Turn any YouTube video into a clean, organized set of images without living in the command line.</p>
       </section>
     </main>
 
