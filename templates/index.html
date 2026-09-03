@@ -12,7 +12,7 @@
     <main>
       <section class="min-h-svh bg-ink px-[clamp(1.25rem,6vw,6rem)] pt-[clamp(3rem,5vw,5rem)] pb-[clamp(5rem,10vw,10rem)] text-white" id="extractor" aria-labelledby="extractor-title">
         <div class="mx-auto mb-[clamp(2.5rem,4vw,4rem)] flex max-w-[1450px] flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
-          <h1 class="max-w-[15ch] text-4xl leading-[.9] font-extrabold tracking-[-.07em] sm:text-5xl lg:text-6xl" id="extractor-title">YouTube Video<br>Frame Extractor <em class="mt-[.55em] block text-[.38em] font-extrabold tracking-[.01em] text-brand-red not-italic">for Datasets.</em></h1>
+          <h1 class="max-w-[15ch] text-4xl leading-[.9] font-extrabold tracking-[-.07em] sm:text-5xl lg:text-6xl" id="extractor-title">YouTube Video<br>Frame Extractor <em class="mt-[.55em] block text-[.38em] font-extrabold tracking-[.01em] text-[#E51E10] not-italic">for Datasets.</em></h1>
           <img class="w-[clamp(10rem,22vw,17rem)] shrink-0 object-contain" src="{{ url_for('design_image', filename='yt_logo_fullcolor_white_digital.png') }}" alt="" aria-hidden="true">
         </div>
 
@@ -25,8 +25,6 @@
 
             {% if not javascript_runtime %}
             <p class="mb-6 rounded-lg border border-brand-red/30 bg-brand-red/5 px-4 py-3 text-sm text-brand-red-dark">YouTube support needs Deno 2.3+ or Node.js 22+. Close the app and run <strong>setup.bat</strong>.</p>
-            {% elif not ffmpeg_available %}
-            <p class="mb-6 border-l-2 border-brand-red px-4 text-sm leading-6 text-neutral-500">Standard-quality downloads are ready. Install FFmpeg only if you need merged 720p streams.</p>
             {% endif %}
 
             <div class="field">
@@ -38,7 +36,7 @@
             <div class="mt-5 grid gap-5 sm:grid-cols-[1fr_auto]">
               <div class="field">
                 <label for="label">Folder label</label>
-                <input id="label" name="label" type="text" placeholder="e.g. Oni" maxlength="80" required>
+                <input id="label" name="label" type="text" placeholder="cats" maxlength="80" required>
               </div>
               <div class="min-w-58 rounded-lg border border-line bg-soft px-4 py-3">
                 <p class="m-0 text-xs font-bold uppercase tracking-[.12em]">Fixed output folder</p>
@@ -94,11 +92,11 @@
             </div>
           </form>
 
-          <aside class="min-h-[420px] border-t border-line bg-[#eceae6] p-[clamp(1.5rem,3vw,3rem)] lg:h-[580px] lg:border-t-0 lg:border-l" aria-live="polite">
+          <aside class="flex min-h-[420px] flex-col border-t border-line bg-[#eceae6] p-[clamp(1.5rem,3vw,3rem)] lg:border-t-0 lg:border-l" aria-live="polite">
             <div class="flex items-center justify-between">
               <p class="m-0 text-xs font-extrabold uppercase tracking-[.16em]">Activity</p>
             </div>
-            <div class="grid min-h-[300px] place-content-center justify-items-center text-center lg:min-h-[460px]" id="empty-state">
+            <div class="grid min-h-[300px] flex-1 place-content-center justify-items-center text-center" id="empty-state">
               <img class="mb-6 w-24 object-contain" src="{{ url_for('design_image', filename='yt_icon_red_digital.png') }}" alt="" aria-hidden="true">
               <h3 class="m-0 text-lg font-bold">Your frames will appear here.</h3>
               <p class="mt-2 max-w-68 text-sm leading-6 text-neutral-500">Set your source and label, then start the extraction.</p>
@@ -122,26 +120,45 @@
         </div>
       </section>
 
-      <section class="grid min-h-svh grid-cols-1 content-center justify-items-center gap-[clamp(1.5rem,3vw,2.75rem)] overflow-hidden bg-[#F7F7F7] px-[clamp(1.25rem,5vw,5rem)] py-[clamp(4rem,7vw,7rem)]" aria-labelledby="hero-title">
-        <div class="relative z-10 grid justify-items-center gap-5 text-center">
-          <img class="w-[clamp(11rem,22vw,17rem)] object-contain" src="{{ url_for('design_image', filename='yt_logo_fullcolor_almostblack_digital.png') }}" alt="" aria-hidden="true">
-          <h2 class="m-0 text-3xl leading-[.92] font-extrabold tracking-[-.07em] sm:text-4xl lg:text-5xl" id="hero-title">YouTube Frame <em class="text-[#E51E10] not-italic">Extractor v1</em></h2>
-        </div>
+      <section class="min-h-svh overflow-hidden bg-[#F7F7F7] px-[clamp(1.25rem,5vw,5rem)] py-[clamp(4rem,7vw,7rem)]" aria-labelledby="hero-title">
+        <div class="mx-auto grid min-h-[calc(100svh-8rem)] w-full max-w-[1450px] content-center gap-[clamp(2.5rem,5vw,5rem)]">
+          <h2 class="m-0 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-3xl leading-[.92] font-extrabold tracking-[-.07em] sm:text-4xl lg:text-5xl" id="hero-title">
+            <img class="w-[clamp(8rem,15vw,12rem)] object-contain" src="{{ url_for('design_image', filename='yt_logo_fullcolor_almostblack_digital.png') }}" alt="YouTube">
+            <span>Frame <em class="text-[#E51E10] not-italic">Extractor v1</em></span>
+          </h2>
 
-        <div class="relative z-0 aspect-square w-[min(90vw,660px)] sm:w-[min(62vw,660px)]" aria-label="Animated YouTube-inspired illustration">
-          <video class="h-full w-full object-contain mix-blend-multiply" autoplay muted loop playsinline>
-            <source src="{{ url_for('hero_animation') }}" type="video/mp4">
-          </video>
-          <p class="absolute bottom-[-2.25rem] left-1/2 z-10 m-0 inline-flex w-max -translate-x-1/2 items-center gap-3 font-mono text-base font-bold tracking-[.16em] sm:gap-4 sm:text-lg">
-            <span>VIDEO</span><span class="text-brand-red" aria-hidden="true">→</span><span>FRAME</span><span class="text-brand-red" aria-hidden="true">→</span><span>DATASET</span>
-          </p>
-        </div>
+          <div class="grid items-center gap-10 lg:grid-cols-[minmax(12rem,1fr)_minmax(0,660px)_minmax(12rem,1fr)] lg:gap-12">
+            <aside class="max-w-74 border-t-2 border-ink pt-5 lg:justify-self-start">
+              <p class="m-0 font-mono text-xs font-bold tracking-[.16em] text-[#E51E10]">AI TRAINING DATA</p>
+              <h3 class="mt-4 text-2xl leading-tight font-extrabold tracking-[-.04em]">Turn motion into model-ready frames.</h3>
+              <p class="mt-4 text-base leading-7 text-neutral-700">Build labeled image datasets for computer-vision training, evaluation, and annotation.</p>
+            </aside>
 
-        <p class="relative z-10 m-0 mt-5 max-w-176 text-center text-lg leading-8 font-medium text-neutral-700 sm:text-xl">Turn any YouTube video into a clean, organized set of images without living in the command line.</p>
+            <div class="relative z-0 aspect-square w-full max-w-[660px] justify-self-center" aria-label="Animated YouTube-inspired illustration">
+              <div class="absolute top-[6%] left-[5%] z-10 inline-flex items-center gap-2 rounded-full bg-ink/90 px-3 py-2 font-mono text-xs font-bold tracking-[.16em] text-white" aria-hidden="true">
+                <span class="size-2 animate-pulse rounded-full bg-brand-red"></span>
+                REC
+              </div>
+              <video class="h-full w-full object-contain mix-blend-multiply" autoplay muted loop playsinline>
+                <source src="{{ url_for('hero_animation') }}" type="video/mp4">
+              </video>
+              <p class="absolute bottom-[-2.25rem] left-1/2 z-10 m-0 inline-flex w-max -translate-x-1/2 items-center gap-3 font-mono text-base font-bold tracking-[.16em] sm:gap-4 sm:text-lg">
+                <span>VIDEO</span><span class="text-brand-red" aria-hidden="true">→</span><span>FRAME</span><span class="text-brand-red" aria-hidden="true">→</span><span>DATASET</span>
+              </p>
+            </div>
+
+            <aside class="max-w-74 border-t-2 border-[#E51E10] pt-5 lg:justify-self-end">
+              <p class="m-0 font-mono text-xs font-bold tracking-[.16em]">ONE LOCAL WORKFLOW</p>
+              <p class="mt-4 text-base leading-7 text-neutral-700">Combine multiple videos into one labeled folder, then use the clean, numbered frames in your dataset pipeline.</p>
+            </aside>
+          </div>
+
+          <p class="m-0 mx-auto max-w-220 text-center text-lg leading-8 font-medium text-neutral-700 sm:text-xl">Turn YouTube videos into organized image datasets for AI training, model evaluation, and annotation. Sample frames automatically, filter dark or duplicate shots, and keep every result ready to label.</p>
+        </div>
       </section>
     </main>
 
-    <footer class="flex justify-center bg-ink px-[clamp(1.25rem,6vw,6rem)] py-8 text-center text-xs tracking-[.04em] text-neutral-400">
+    <footer class="flex justify-center bg-ink px-[clamp(1.25rem,6vw,6rem)] py-12 text-center text-sm tracking-[.04em] text-neutral-400">
       <a class="text-white underline underline-offset-4" href="https://lance-crucis.vercel.app" target="_blank" rel="noopener noreferrer">Lance Christian C. Crucis · Portfolio ↗</a>
     </footer>
   </body>

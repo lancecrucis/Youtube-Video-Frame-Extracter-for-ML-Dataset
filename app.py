@@ -14,7 +14,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from flask import Flask, abort, jsonify, render_template, request, send_file
-from system_checks import ffmpeg_path, javascript_runtime
+from system_checks import javascript_runtime
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -143,7 +143,6 @@ def index():
         "index.html",
         cookies_available=(BASE_DIR / "cookies.txt").exists(),
         javascript_runtime=runtime[0].title() if runtime else None,
-        ffmpeg_available=ffmpeg_path() is not None,
     )
 
 
