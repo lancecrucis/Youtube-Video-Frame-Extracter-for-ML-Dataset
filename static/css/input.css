@@ -1,0 +1,63 @@
+@import "tailwindcss";
+@source "../../templates/**/*.html";
+@source "../js/**/*.js";
+
+@theme {
+  --font-youtube: "YouTube Sans", "Roboto", Arial, sans-serif;
+  --color-brand-red: #ff0033;
+  --color-brand-red-dark: #d9002b;
+  --color-ink: #121212;
+  --color-paper: #f8f7f5;
+  --color-line: #dedcd8;
+  --color-soft: #efeeeb;
+}
+
+@layer base {
+  html { @apply scroll-smooth; }
+  body { @apply m-0 bg-paper font-youtube text-ink antialiased; }
+  button, summary, input[type="range"] { @apply cursor-pointer; }
+}
+
+@layer components {
+  .mode-button {
+    @apply rounded-full border-0 bg-transparent px-4 py-2.5 text-sm font-bold text-ink transition-colors;
+  }
+
+  .mode-button.active { @apply bg-ink text-white; }
+
+  .field { @apply grid gap-2.5; }
+
+  .field label {
+    @apply text-xs font-bold uppercase tracking-[0.12em] text-ink;
+  }
+
+  .field input:not([type="range"]),
+  .field select {
+    @apply min-h-14 w-full rounded-lg border border-line bg-white px-4 outline-none transition focus:border-ink focus:ring-4 focus:ring-ink/10;
+  }
+
+  .extract-button {
+    @apply inline-flex min-h-16 items-center gap-6 rounded-full border-0 bg-ink py-2 pr-2 pl-6 font-extrabold text-white shadow-xl shadow-ink/15 transition hover:-translate-y-0.5 hover:bg-brand-red hover:shadow-brand-red/20 disabled:cursor-wait disabled:opacity-55;
+  }
+
+  .extract-button .play-mark {
+    @apply grid size-12 place-items-center rounded-full bg-brand-red text-xl text-white transition group-hover:translate-x-0.5 group-hover:bg-white group-hover:text-brand-red;
+  }
+
+  .frame-grid img {
+    @apply aspect-[16/10] w-full bg-neutral-300 object-cover opacity-0;
+    animation: reveal .35s forwards;
+  }
+}
+
+@keyframes reveal {
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

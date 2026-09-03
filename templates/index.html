@@ -6,29 +6,29 @@
     <meta name="description" content="Turn YouTube videos into clean, labeled image datasets.">
     <title>YouTube Video Frame Extractor for Datasets</title>
     <link rel="icon" href="{{ url_for('static', filename='media/hero-art.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
     <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
   </head>
   <body>
     <main>
-      <section class="extractor-section primary" id="extractor" aria-labelledby="extractor-title">
-        <div class="section-heading extractor-heading">
-          <h1 id="extractor-title">YouTube Video<br>Frame Extractor <em class="dataset-title">for Datasets.</em></h1>
+      <section class="min-h-svh bg-ink px-[clamp(1.25rem,6vw,6rem)] pt-[clamp(3rem,5vw,5rem)] pb-[clamp(5rem,10vw,10rem)] text-white" id="extractor" aria-labelledby="extractor-title">
+        <div class="mx-auto mb-[clamp(2.5rem,4vw,4rem)] max-w-[1450px]">
+          <h1 class="max-w-[15ch] text-[clamp(2.8rem,5vw,5.25rem)] leading-[.9] font-extrabold tracking-[-.07em]" id="extractor-title">YouTube Video<br>Frame Extractor <em class="mt-[.55em] block text-[.38em] font-extrabold tracking-[.01em] text-brand-red not-italic">for Datasets.</em></h1>
         </div>
 
-        <div class="workspace">
-          <form id="extract-form" novalidate>
-            <div class="mode-switch" role="group" aria-label="Input type">
+        <div class="mx-auto grid max-w-[1450px] overflow-hidden rounded-2xl bg-white text-ink shadow-[0_2rem_7rem_rgba(0,0,0,.38)] lg:grid-cols-[1.15fr_.85fr]">
+          <form class="p-[clamp(1.5rem,4vw,4rem)]" id="extract-form" novalidate>
+            <div class="mb-10 inline-flex w-full gap-1.5 rounded-full bg-soft p-1.5 sm:w-auto" role="group" aria-label="Input type">
               <button class="mode-button active" type="button" data-mode="url">Paste URL</button>
               <button class="mode-button" type="button" data-mode="search">Search YouTube</button>
             </div>
 
-            <div class="field field-wide">
+            <div class="field [&>input]:min-h-18 [&>input]:text-base">
               <label for="source" id="source-label">YouTube URL</label>
               <input id="source" name="source" type="url" placeholder="https://youtube.com/watch?v=…" autocomplete="off" required>
             </div>
 
-            <div class="form-row">
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
               <div class="field">
                 <label for="label">Folder label</label>
                 <input id="label" name="label" type="text" placeholder="e.g. Oni" maxlength="80" required>
@@ -39,12 +39,12 @@
               </div>
             </div>
 
-            <details class="advanced">
-              <summary>Fine-tune extraction <span aria-hidden="true">＋</span></summary>
-              <div class="advanced-grid">
+            <details class="group mt-6 border-y border-line">
+              <summary class="flex list-none justify-between py-5 font-bold [&::-webkit-details-marker]:hidden">Fine-tune extraction <span class="transition-transform group-open:rotate-45" aria-hidden="true">＋</span></summary>
+              <div class="grid gap-5 px-0 pt-2 pb-6 sm:grid-cols-2 xl:grid-cols-3">
                 <div class="field">
                   <label for="interval">Every <output id="interval-value">1.5s</output></label>
-                  <input id="interval" name="interval" type="range" min="0.5" max="10" step="0.5" value="1.5">
+                  <input class="w-full accent-brand-red" id="interval" name="interval" type="range" min="0.5" max="10" step="0.5" value="1.5">
                 </div>
                 <div class="field">
                   <label for="max-frames">Maximum frames</label>
@@ -71,80 +71,80 @@
                 </div>
               </div>
               {% if cookies_available %}
-              <label class="check-row" for="use-cookies">
-                <input id="use-cookies" name="use_cookies" type="checkbox">
+              <label class="flex items-center gap-3 pb-5 text-sm" for="use-cookies">
+                <input class="size-4.5 accent-brand-red" id="use-cookies" name="use_cookies" type="checkbox">
                 <span>Use cookies.txt for higher-quality downloads</span>
               </label>
               {% endif %}
             </details>
 
-            <div class="submit-row">
-              <button class="extract-button" id="extract-button" type="submit">
+            <div class="mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
+              <button class="extract-button group w-full sm:w-auto" id="extract-button" type="submit">
                 <span class="button-label">Extract frames</span>
                 <span class="play-mark" aria-hidden="true">→</span>
               </button>
-              <p id="form-error" class="form-error" role="alert"></p>
+              <p id="form-error" class="m-0 text-sm text-brand-red-dark" role="alert"></p>
             </div>
           </form>
 
-          <aside class="activity" aria-live="polite">
-            <div class="activity-top">
-              <p class="activity-label">Activity</p>
+          <aside class="min-h-[420px] border-t border-line bg-[#eceae6] p-[clamp(1.5rem,3vw,3rem)] lg:min-h-[580px] lg:border-t-0 lg:border-l" aria-live="polite">
+            <div class="flex items-center justify-between">
+              <p class="m-0 text-xs font-extrabold uppercase tracking-[.16em]">Activity</p>
             </div>
-            <div class="empty-state" id="empty-state">
-              <span class="frame-icon" aria-hidden="true"></span>
-              <h3>Your frames will appear here.</h3>
-              <p>Set your source and label, then start the extraction.</p>
+            <div class="grid min-h-[300px] place-content-center justify-items-center text-center lg:min-h-[460px]" id="empty-state">
+              <span class="mb-6 grid h-16 w-22 place-items-center border-2 border-[#c9c6c0] text-brand-red" aria-hidden="true">▶</span>
+              <h3 class="m-0 text-lg font-bold">Your frames will appear here.</h3>
+              <p class="mt-2 max-w-68 text-sm leading-6 text-neutral-500">Set your source and label, then start the extraction.</p>
             </div>
-            <div class="job-state" id="job-state" hidden>
-              <div class="job-heading">
+            <div class="mt-10" id="job-state" hidden>
+              <div class="flex items-start justify-between gap-4">
                 <div>
-                  <p id="job-message">Preparing your video…</p>
-                  <strong id="job-count">0 frames</strong>
+                  <p class="mb-1.5 text-neutral-500" id="job-message">Preparing your video…</p>
+                  <strong class="text-3xl" id="job-count">0 frames</strong>
                 </div>
-                <button id="cancel-button" class="text-button" type="button">Cancel</button>
+                <button id="cancel-button" class="border-0 bg-transparent text-sm font-bold text-brand-red-dark" type="button">Cancel</button>
               </div>
-              <div class="progress-track"><span id="progress-bar"></span></div>
-              <div class="frame-grid" id="frame-grid"></div>
-              <details class="log-panel">
-                <summary>Activity log</summary>
-                <pre id="activity-log"></pre>
+              <div class="my-6 h-1 overflow-hidden bg-[#d3d0cb]"><span class="block h-full w-0 bg-brand-red transition-[width] duration-300" id="progress-bar"></span></div>
+              <div class="frame-grid grid min-h-45 grid-cols-2 gap-1.5 sm:grid-cols-4" id="frame-grid"></div>
+              <details class="mt-4 border-t border-[#cfccc6]">
+                <summary class="py-4 text-sm font-bold">Activity log</summary>
+                <pre class="max-h-38 overflow-auto whitespace-pre-wrap font-mono text-xs leading-6 text-neutral-600" id="activity-log"></pre>
               </details>
             </div>
           </aside>
         </div>
       </section>
 
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <h2 id="hero-title">YouTube Frame <em>Extractor v1</em></h2>
+      <section class="grid min-h-svh grid-cols-1 content-center justify-items-center gap-[clamp(1.5rem,3vw,2.75rem)] overflow-hidden bg-white px-[clamp(1.25rem,5vw,5rem)] py-[clamp(4rem,7vw,7rem)]" aria-labelledby="hero-title">
+        <div class="relative z-10 m-0 text-center">
+          <h2 class="m-0 text-[clamp(2.5rem,5.4vw,5.6rem)] leading-[.92] font-extrabold tracking-[-.07em]" id="hero-title">YouTube Frame <em class="text-brand-red not-italic">Extractor v1</em></h2>
         </div>
 
-        <div class="hero-visual" aria-label="Animated YouTube-inspired illustration">
-          <video autoplay muted loop playsinline poster="{{ url_for('static', filename='media/hero-art.png') }}">
+        <div class="relative z-0 aspect-square w-[min(90vw,660px)] sm:w-[min(62vw,660px)]" aria-label="Animated YouTube-inspired illustration">
+          <video class="h-full w-full object-contain mix-blend-multiply" autoplay muted loop playsinline poster="{{ url_for('static', filename='media/hero-art.png') }}">
             <source src="{{ url_for('hero_animation') }}" type="video/mp4">
             <img src="{{ url_for('static', filename='media/hero-art.png') }}" alt="Illustrated woman sitting on a red YouTube play button">
           </video>
-          <p class="visual-note">VIDEO → FRAME → DATASET</p>
+          <p class="absolute bottom-[-1.35rem] left-1/2 z-10 m-0 w-max -translate-x-1/2 text-xs font-bold tracking-[.18em]">VIDEO → FRAME → DATASET</p>
         </div>
 
-        <p class="hero-intro">Turn any YouTube video into a clean, organized set of images—without living in the command line.</p>
+        <p class="relative z-10 m-0 mt-1 max-w-152 text-center text-base leading-7">Turn any YouTube video into a clean, organized set of images—without living in the command line.</p>
       </section>
 
-      <section class="how-it-works" id="how-it-works" aria-labelledby="how-title">
-        <div class="section-heading compact">
-          <h2 id="how-title">Less sorting.<br><em>More creating.</em></h2>
+      <section class="px-[clamp(1.25rem,6vw,6rem)] py-[clamp(6rem,11vw,11rem)]" id="how-it-works" aria-labelledby="how-title">
+        <div class="mx-auto mb-[clamp(3rem,6vw,6rem)] max-w-[1450px]">
+          <h2 class="m-0 max-w-[14ch] text-[clamp(2.75rem,5vw,5rem)] leading-[.84] font-extrabold tracking-[-.07em]" id="how-title">Less sorting.<br><em class="text-brand-red not-italic">More creating.</em></h2>
         </div>
-        <ol class="steps">
-          <li><span>01</span><h3>Choose a video</h3><p>Paste a link or let the app search YouTube for the right footage.</p></li>
-          <li><span>02</span><h3>Keep the good stuff</h3><p>Dark, blurry, and near-duplicate frames are filtered automatically.</p></li>
-          <li><span>03</span><h3>Find it organized</h3><p>Each label becomes its own folder with clean, sequential filenames.</p></li>
+        <ol class="mx-auto grid max-w-[1450px] list-none border-t border-line p-0 md:grid-cols-3">
+          <li class="min-h-62 border-b border-line p-8 md:border-r md:border-b-0"><span class="text-xs font-extrabold tracking-[.14em] text-brand-red">01</span><h3 class="mt-14 mb-3 text-xl font-bold">Choose a video</h3><p class="m-0 max-w-76 leading-7 text-neutral-500">Paste a link or let the app search YouTube for the right footage.</p></li>
+          <li class="min-h-62 border-b border-line p-8 md:border-r md:border-b-0"><span class="text-xs font-extrabold tracking-[.14em] text-brand-red">02</span><h3 class="mt-14 mb-3 text-xl font-bold">Keep the good stuff</h3><p class="m-0 max-w-76 leading-7 text-neutral-500">Dark, blurry, and near-duplicate frames are filtered automatically.</p></li>
+          <li class="min-h-62 p-8"><span class="text-xs font-extrabold tracking-[.14em] text-brand-red">03</span><h3 class="mt-14 mb-3 text-xl font-bold">Find it organized</h3><p class="m-0 max-w-76 leading-7 text-neutral-500">Each label becomes its own folder with clean, sequential filenames.</p></li>
         </ol>
       </section>
     </main>
 
-    <footer>
-      <a href="https://lance-crucis.vercel.app" target="_blank" rel="noopener noreferrer">Lance Christian C. Crucis · Portfolio ↗</a>
+    <footer class="flex justify-center bg-ink px-[clamp(1.25rem,6vw,6rem)] py-8 text-center text-xs tracking-[.04em] text-neutral-400">
+      <a class="text-white underline underline-offset-4" href="https://lance-crucis.vercel.app" target="_blank" rel="noopener noreferrer">Lance Christian C. Crucis · Portfolio ↗</a>
     </footer>
   </body>
 </html>

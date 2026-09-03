@@ -31,10 +31,14 @@ The project includes a browser-based interface with live extraction progress and
 ```bash
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
+npm install
+npm run build:css
 .venv\Scripts\python app.py
 ```
 
 Open `http://127.0.0.1:5000` in your browser. Frames are stored in `output/<label>/` unless you choose a different output location in the interface.
+
+When editing the interface, run `npm run watch:css` in a second terminal to rebuild Tailwind styles automatically.
 
 ## Quick Start
 
