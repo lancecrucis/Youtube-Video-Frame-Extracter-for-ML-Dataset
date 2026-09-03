@@ -23,6 +23,12 @@
               <button class="mode-button" type="button" data-mode="search">Search YouTube</button>
             </div>
 
+            {% if not javascript_runtime %}
+            <p class="mb-6 rounded-lg border border-brand-red/30 bg-brand-red/5 px-4 py-3 text-sm text-brand-red-dark">YouTube support needs Deno 2.3+ or Node.js 22+. Close the app and run <strong>setup.bat</strong>.</p>
+            {% elif not ffmpeg_available %}
+            <p class="mb-6 border-l-2 border-brand-red px-4 text-sm leading-6 text-neutral-500">Standard-quality downloads are ready. Install FFmpeg only if you need merged 720p streams.</p>
+            {% endif %}
+
             <div class="field [&>input]:min-h-18 [&>input]:text-base">
               <label for="source" id="source-label">YouTube URL</label>
               <input id="source" name="source" type="url" placeholder="https://youtube.com/watch?v=…" autocomplete="off" required>

@@ -16,29 +16,29 @@ YouTube Video → Download → Extract Frames → Organized Dataset
 - **High quality frames** — JPEG quality 100, or lossless PNG with `--format png`
 - **Higher quality downloads** — use `--cookies cookies.txt` for 720p+ streams (auto-falls back to 360p if cookies are invalid)
 
-## Installation
+## Run the local app on Windows
+
+No website hosting is required. Processing and output stay on your computer.
+
+1. Download the repository from GitHub and extract the ZIP.
+2. Double-click **`setup.bat`** once. It creates an isolated Python environment, installs the app, and offers to install Deno when a supported JavaScript runtime is missing.
+3. Double-click **`start.bat`** whenever you want to use the extractor.
+4. Keep the terminal window open while using the app. Press `Ctrl+C` there to stop it.
+
+The interface opens automatically in your browser. Frames are stored in `output/<label>/` unless you choose another output location.
+
+FFmpeg is optional: without it, the app automatically uses compatible standard-quality video streams. Install [FFmpeg](https://ffmpeg.org/download.html) for merged 720p streams.
+
+YouTube extraction requires Deno 2.3+ or Node.js 22+. The setup script checks this automatically and recommends Deno.
+
+### Developer setup
+
+The compiled Tailwind stylesheet is included, so normal users do not need Node.js or npm. Developers changing the design can run:
 
 ```bash
-pip install yt-dlp opencv-python-headless
-```
-
-> `ffmpeg` is also required for video merging. [Install ffmpeg](https://ffmpeg.org/download.html)
-
-## Local web interface
-
-The project includes a browser-based interface with live extraction progress and frame previews.
-
-```bash
-python -m venv .venv
-.venv\Scripts\pip install -r requirements.txt
 npm install
-npm run build:css
-.venv\Scripts\python app.py
+npm run watch:css
 ```
-
-Open `http://127.0.0.1:5000` in your browser. Frames are stored in `output/<label>/` unless you choose a different output location in the interface.
-
-When editing the interface, run `npm run watch:css` in a second terminal to rebuild Tailwind styles automatically.
 
 ## Quick Start
 

@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import os
 import re
+import socket
 import subprocess
 import sys
 import threading
 import uuid
+import webbrowser
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request, send_file
+from system_checks import ffmpeg_path, javascript_runtime
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -111,7 +114,13 @@ def _run_job(job_id: str, command: list[str]) -> None:
 
 @app.get("/")
 def index():
-    return render_template("index.html", cookies_available=(BASE_DIR / "cookies.txt").exists())
+    runtime = javascript_runtime()
+    return render_template(
+        "index.html",
+        cookies_available=(BASE_DIR / "cookies.txt").exists(),
+        javascript_runtime=runtime[0].title() if runtime else None,
+        ffmpeg_available=ffmpeg_path() is not None,
+    )
 
 
 @app.get("/media/hero-animation")
@@ -122,6 +131,8 @@ def hero_animation():
 @app.post("/api/extract")
 def start_extraction():
     payload = request.get_json(silent=True) or {}
+    if javascript_runtime() is None:
+        return jsonify({"error": "Deno 2.3+ or Node.js 22+ is required for YouTube. Run setup.bat first."}), 503
     try:
         mode = payload.get("mode", "url")
         if mode not in {"url", "search"}:
@@ -244,5 +255,21 @@ def cancel_job(job_id: str):
     return jsonify({"ok": True})
 
 
+def _available_port(start: int = 5000, attempts: int = 10) -> int:
+    for port in range(start, start + attempts):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as candidate:
+            try:
+                candidate.bind(("127.0.0.1", port))
+            except OSError:
+                continue
+            return port
+    raise RuntimeError("No available local port found between 5000 and 5009.")
+
+
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    port = _available_port()
+    local_url = f"http://127.0.0.1:{port}"
+    print(f"Opening YouTube Video Frame Extractor at {local_url}")
+    if "--open-browser" in sys.argv:
+        threading.Timer(1.0, webbrowser.open, args=(local_url,)).start()
+    app.run(host="127.0.0.1", port=port, debug=False, use_reloader=False)
