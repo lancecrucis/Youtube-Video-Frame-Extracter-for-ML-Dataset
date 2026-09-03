@@ -34,6 +34,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from system_checks import ffmpeg_path, javascript_runtime_args
+
 try:
     import cv2
 except ImportError:
@@ -48,8 +50,8 @@ def search_youtube(query: str, max_results: int = 5) -> list[dict]:
         f"ytsearch{max_results}:{query}",
         "--flat-playlist",
         "-j",
-        "--js-runtimes", "node",
     ]
+    cmd.extend(javascript_runtime_args())
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
         videos = []
@@ -91,17 +93,26 @@ def download_video(url: str, output_dir: str, name: str,
                    cookies: str | None = None) -> str | None:
     """Download a YouTube video using yt-dlp."""
     output_path = os.path.join(output_dir, f"{name}.mp4")
+    has_ffmpeg = ffmpeg_path() is not None
+    format_selector = (
+        "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]"
+        if has_ffmpeg
+        else "best[height<=720][ext=mp4]/best[ext=mp4]"
+    )
+    if not has_ffmpeg:
+        print("  FFmpeg not found; using a compatible single-file stream.")
+
     cmd = [
         sys.executable, "-m", "yt_dlp",
-        "-f", "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]",
+        "-f", format_selector,
         "--merge-output-format", "mp4",
-        "--js-runtimes", "node",
         "--extractor-args", "youtube:player_client=mweb",
         "-o", output_path,
         "--no-playlist",
         "--socket-timeout", "30",
         "--retries", "3",
     ]
+    cmd.extend(javascript_runtime_args())
     if cookies:
         cmd.extend(["--cookies", cookies])
 
