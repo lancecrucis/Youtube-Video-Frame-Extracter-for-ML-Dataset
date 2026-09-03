@@ -18,6 +18,11 @@ from system_checks import ffmpeg_path, javascript_runtime
 
 
 BASE_DIR = Path(__file__).resolve().parent
+DESIGN_IMAGES = {
+    "yt_icon_red_digital.png",
+    "yt_logo_fullcolor_almostblack_digital.png",
+    "yt_logo_fullcolor_white_digital.png",
+}
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
@@ -145,6 +150,13 @@ def index():
 @app.get("/media/hero-animation")
 def hero_animation():
     return send_file(BASE_DIR / "design" / "0903.mp4", mimetype="video/mp4", conditional=True)
+
+
+@app.get("/media/design/<filename>")
+def design_image(filename: str):
+    if filename not in DESIGN_IMAGES:
+        abort(404)
+    return send_file(BASE_DIR / "design" / filename, mimetype="image/png", conditional=True)
 
 
 @app.post("/api/extract")

@@ -11,8 +11,9 @@
   <body>
     <main>
       <section class="min-h-svh bg-ink px-[clamp(1.25rem,6vw,6rem)] pt-[clamp(3rem,5vw,5rem)] pb-[clamp(5rem,10vw,10rem)] text-white" id="extractor" aria-labelledby="extractor-title">
-        <div class="mx-auto mb-[clamp(2.5rem,4vw,4rem)] max-w-[1450px]">
+        <div class="mx-auto mb-[clamp(2.5rem,4vw,4rem)] flex max-w-[1450px] flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
           <h1 class="max-w-[15ch] text-4xl leading-[.9] font-extrabold tracking-[-.07em] sm:text-5xl lg:text-6xl" id="extractor-title">YouTube Video<br>Frame Extractor <em class="mt-[.55em] block text-[.38em] font-extrabold tracking-[.01em] text-brand-red not-italic">for Datasets.</em></h1>
+          <img class="w-[clamp(10rem,22vw,17rem)] shrink-0 object-contain" src="{{ url_for('design_image', filename='yt_logo_fullcolor_white_digital.png') }}" alt="" aria-hidden="true">
         </div>
 
         <div class="mx-auto grid max-w-[1450px] overflow-hidden rounded-2xl bg-white text-ink shadow-[0_2rem_7rem_rgba(0,0,0,.38)] lg:grid-cols-[1.15fr_.85fr]">
@@ -98,7 +99,7 @@
               <p class="m-0 text-xs font-extrabold uppercase tracking-[.16em]">Activity</p>
             </div>
             <div class="grid min-h-[300px] place-content-center justify-items-center text-center lg:min-h-[460px]" id="empty-state">
-              <span class="mb-6 grid h-16 w-22 place-items-center border-2 border-[#c9c6c0] text-brand-red" aria-hidden="true">▶</span>
+              <img class="mb-6 w-24 object-contain" src="{{ url_for('design_image', filename='yt_icon_red_digital.png') }}" alt="" aria-hidden="true">
               <h3 class="m-0 text-lg font-bold">Your frames will appear here.</h3>
               <p class="mt-2 max-w-68 text-sm leading-6 text-neutral-500">Set your source and label, then start the extraction.</p>
             </div>
@@ -122,7 +123,8 @@
       </section>
 
       <section class="grid min-h-svh grid-cols-1 content-center justify-items-center gap-[clamp(1.5rem,3vw,2.75rem)] overflow-hidden bg-[#F7F7F7] px-[clamp(1.25rem,5vw,5rem)] py-[clamp(4rem,7vw,7rem)]" aria-labelledby="hero-title">
-        <div class="relative z-10 m-0 text-center">
+        <div class="relative z-10 grid justify-items-center gap-5 text-center">
+          <img class="w-[clamp(11rem,22vw,17rem)] object-contain" src="{{ url_for('design_image', filename='yt_logo_fullcolor_almostblack_digital.png') }}" alt="" aria-hidden="true">
           <h2 class="m-0 text-3xl leading-[.92] font-extrabold tracking-[-.07em] sm:text-4xl lg:text-5xl" id="hero-title">YouTube Frame <em class="text-[#E51E10] not-italic">Extractor v1</em></h2>
         </div>
 

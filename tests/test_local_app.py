@@ -93,5 +93,16 @@ class LocalAppTests(unittest.TestCase):
     def test_shared_url_produces_a_windows_safe_video_key(self):
         self.assertEqual(extract.video_key("https://youtu.be/abc-123?si=tracking"), "abc-123")
 
+    def test_design_images_are_served_from_the_allowlist(self):
+        for filename in web_app.DESIGN_IMAGES:
+            response = self.client.get(f"/media/design/{filename}")
+            try:
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.mimetype, "image/png")
+            finally:
+                response.close()
+
+        self.assertEqual(self.client.get("/media/design/0903.mp4").status_code, 404)
+
 if __name__ == "__main__":
     unittest.main()
