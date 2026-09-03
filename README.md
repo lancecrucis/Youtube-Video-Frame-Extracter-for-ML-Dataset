@@ -24,6 +24,18 @@ pip install yt-dlp opencv-python-headless
 
 > `ffmpeg` is also required for video merging. [Install ffmpeg](https://ffmpeg.org/download.html)
 
+## Local web interface
+
+The project includes a browser-based interface with live extraction progress and frame previews.
+
+```bash
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
+.venv\Scripts\python app.py
+```
+
+Open `http://127.0.0.1:5000` in your browser. Frames are stored in `output/<label>/` unless you choose a different output location in the interface.
+
 ## Quick Start
 
 ### Search YouTube and extract frames

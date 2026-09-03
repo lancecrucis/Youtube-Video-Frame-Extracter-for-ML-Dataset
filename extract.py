@@ -382,7 +382,7 @@ Examples:
         temp_dir = os.path.join(args.output, "_temp")
         os.makedirs(temp_dir, exist_ok=True)
         safe = label.replace(" ", "_")
-        video_path = download_video(best["url"], temp_dir, safe)
+        video_path = download_video(best["url"], temp_dir, safe, cookies=args.cookies)
         if video_path:
             extract_frames(
                 video_path, args.output, label,
