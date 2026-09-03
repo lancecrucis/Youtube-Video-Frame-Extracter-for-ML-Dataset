@@ -4,6 +4,7 @@ const sourceLabel = document.querySelector('#source-label');
 const modeButtons = [...document.querySelectorAll('.mode-button')];
 const errorMessage = document.querySelector('#form-error');
 const extractButton = document.querySelector('#extract-button');
+const extractButtonLabel = document.querySelector('.button-label');
 const emptyState = document.querySelector('#empty-state');
 const jobState = document.querySelector('#job-state');
 const jobMessage = document.querySelector('#job-message');
@@ -57,7 +58,7 @@ async function startExtraction(payload) {
   errorMessage.textContent = '';
 
   extractButton.disabled = true;
-  extractButton.lastChild.textContent = ' Starting…';
+  extractButtonLabel.textContent = 'Starting…';
 
   try {
     const response = await fetch('/api/extract', {
@@ -129,7 +130,7 @@ async function pollJob() {
 
 function resetButton() {
   extractButton.disabled = false;
-  extractButton.lastChild.textContent = ' Extract frames';
+  extractButtonLabel.textContent = 'Extract frames';
   cancelButton.disabled = false;
 }
 

@@ -80,8 +80,8 @@
 
             <div class="submit-row">
               <button class="extract-button" id="extract-button" type="submit">
-                <span class="play-mark" aria-hidden="true">▶</span>
-                Extract frames
+                <span class="button-label">Extract frames</span>
+                <span class="play-mark" aria-hidden="true">→</span>
               </button>
               <p id="form-error" class="form-error" role="alert"></p>
             </div>
@@ -117,12 +117,10 @@
 
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <h2 id="hero-title">YouTube Frame<br><em>Extractor v1</em></h2>
+          <h2 id="hero-title">YouTube Frame <em>Extractor v1</em></h2>
         </div>
 
         <div class="hero-visual" aria-label="Animated YouTube-inspired illustration">
-          <div class="orbit orbit-one"></div>
-          <div class="orbit orbit-two"></div>
           <video autoplay muted loop playsinline poster="{{ url_for('static', filename='media/hero-art.png') }}">
             <source src="{{ url_for('hero_animation') }}" type="video/mp4">
             <img src="{{ url_for('static', filename='media/hero-art.png') }}" alt="Illustrated woman sitting on a red YouTube play button">
@@ -131,7 +129,6 @@
         </div>
 
         <p class="hero-intro">Turn any YouTube video into a clean, organized set of images—without living in the command line.</p>
-        <a class="scroll-cue" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a>
       </section>
 
       <section class="how-it-works" id="how-it-works" aria-labelledby="how-title">
